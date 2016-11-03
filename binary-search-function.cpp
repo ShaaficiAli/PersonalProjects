@@ -27,7 +27,11 @@ int binary_search(int list[],int size,int number)
 int main()
 {
 	int sortedlist[15]={1,2,3,4,5,6,7,14,16,18,21,24,36,37};
-	int answer=binary_search(sortedlist,14,21);
+	int number_being_searchedfor;
+	cout<<"Which number are You looking for from our list:";
+	cin>> number_being_searchedfor;
+	int answer=binary_search(sortedlist,14,number_being_searchedfor);
+	
 	if(answer!=-1){
 		cout<<"The number in the "<<answer<<"th positition"<<endl;
 	}
