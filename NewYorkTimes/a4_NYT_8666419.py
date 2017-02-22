@@ -1,7 +1,8 @@
 def year_finder(year1,year2,m):
     ''' (int,int,list)--->list
 
-    Finds the amount of books between two years and returns a list of them. BONUS: 0(k+log(n)) using bubblesort
+    Finds the amount of books between two years and returns a list of them.
+    0(k+log(n)) 
     '''
     yearlist=[]
     if year1>year2:
@@ -112,7 +113,7 @@ def ybestsellers(x,f):
 def main_program():
     '''
     (None)--->(None)
-    Creates a list of best sellers and uses each of the functiond to give the user information absed on what they want.
+    Creates a list of best sellers and uses each of the functiond to give the user information based on what they want.
     '''
     lines = open('bestseller.txt',encoding="utf-8").read().splitlines()
     books=[]
@@ -276,7 +277,7 @@ def main_program():
             break
             
             
-
+main_program()
 
 
 
