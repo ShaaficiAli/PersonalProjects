@@ -1,0 +1,121 @@
+function irROI_SUPER 
+%this program analyzes 1 slice at the time and gives opportunity to draw a region of interest.  It outputs the values
+%of the IR as well as the FRET retromeric image and the hystogram with it.
+%One can choose the whole image or region of interest.
+
+ac1 = imread('fv1_a_z2.tif');  %reads in acceptor projection image
+do1 = imread('fv1_d_z2.tif');  %ditto for the donor
+filename1 = 'fv1_T1';     %name for data image this name you have to keep changing depending on whether i do inside or outside
+filename2 = 'fv1_T2';   %name for ROI file
+dc1 = 2000; dcSD1 = 0;
+dc2 = 2000; dcSD2 = 0;
+accThresh = 300; donThresh = 300;
+upLimit = 2.0; lowLimit = 0.0;
+limits = [lowLimit upLimit];
+%number of bins in ir histogram
+z = 90; binsize = (upLimit-lowLimit)/z;
+%percentage data below ??M input54r54rrr
+M0 = 1.35; M1 = 0.81; M2 = 0.71; M4 = 0.6;
+
+%convert to double precision
+
+ac1 = double(ac1); do1 = double(do1);
+
+%averaging mask
+ac1 = colfilt(ac1,[4 4],'sliding',@m); do1 = colfilt(do1,[4 4],'sliding',@mean);
+
+%Remove dark current offset
+ac1 = ac1 - (dc1 + 3*dcSD1); do1 = do1 - (dc2 + 3*dcSD2);
+
+%compensate for 50_50BS intensity attenuation
+do1 = do1*1.0;
+
+%eliminate low intensity or saturated pixels
+threshIndAcc = find(ac1 <= accThresh | ac1 >= 3800); threshIndDon = find(do1 <= donThresh | do1 >= 3800);
+ac1(threshIndAcc) = 0; do1(threshIndDon) = 0;
+
+%fret calculation
+ir = ac1./do1;
+
+%Remove un-realistic ir values and NaNs
+realInd = find((isnan(ir) | ir < lowLimit | ir > upLimit));
+ir(realInd) = 0;
+
+%Scale and display image
+imagesc(ir, limits); %display image on scaled colormap
+grid on;
+axis square;
+colorbar;
+
+reply = 'y';
+ind = 1;
+while reply == 'y'
+    roi(:,:,ind) = roipoly;  %invoke roi function
+    close;
+    
+    reply = input('...What next? y = do another roi, n = finished, r = redo roi: ','s');
+    if isempty(reply) || (reply == 'Y') 
+        reply = 'y';
+    end
+    if (reply == 'r') || (reply == 'R')
+        roi(:,:,ind) = [];  %clears this roi
+        imagesc(ir, limits);
+        grid on;
+        axis square;
+        colorbar;
+        reply = 'y';
+        continue
+    end
+    if reply == 'y'  %This creates a filled polygon in the image to identify the roi
+        %ir = ir.*(~roi(:,:,ind));
+        %roiFill = roi(:,:,ind).*upLimit;
+        %ir = ir + roiFill;
+        imagesc(ir, limits);
+        grid on;
+        axis square;
+        colorbar;
+    end
+    ind = ind+1;
+end
+
+roiMask = sum(roi,3);  %combine masks
+ir = ir.*roiMask;
+roiMask = mat2gray(roiMask);
+%imwrite(roiMask, filename2,'tif','compression','none');
+
+%determine number of ir pixels and ir statistics
+avgirArray=nonzeros(ir);
+avgirsize=size(avgirArray);
+avgirmean=mean(avgirArray);
+avgirstd=std(avgirArray);
+per5 = prctile(avgirArray,5);
+per95 = prctile(avgirArray,95);
+r0 = find(avgirArray < M0); r1 = find(avgirArray < M1); r2 = find(avgirArray < M2); r4 = find(avgirArray < M4);
+perc(1) = length(r4)/avgirsize(1,1) * 100; 
+perc(2) = length(r2)/avgirsize(1,1) * 100; 
+perc(3) = length(r1)/avgirsize(1,1) * 100; 
+perc(4) = length(r0)/avgirsize(1,1) * 100;
+
+%generate a histogram for ir mode determination and display
+bins = lowLimit:binsize:upLimit; 
+[histCounts, histX] = hist(avgirArray,bins);
+[C,I] = max(histCounts);
+modeReal = histX(I);  %Calculate mode from histogram data
+histCounts = histCounts/C;  %normalize the image to scale from 0.0-1.0
+
+subplot(3,1,[1 2]); imagesc(ir, limits);
+axis off; axis square; colorbar('horiz'); set(gca, 'FontName', 'Times New Roman', 'FontSize', 12);
+subplot(3, 1, [3]); bar(histX, histCounts);
+xlabel('intensity ratio (acceptor/donor)', 'FontName', 'Times New Roman', 'FontSize', 12);
+ylabel('events', 'FontName', 'Times New Roman', 'FontSize', 12);
+set(gca, 'FontName', 'Times New Roman', 'FontSize', 12); axis([lowLimit upLimit 0 1]);
+
+%save image for reference
+%imagesc(ir, limits);
+%axis off; axis square;
+saveas(figure(1), filename1, 'tif');
+
+%output data for further analysis into a text file
+output = [ avgirmean modeReal avgirstd avgirsize(1,1) perc per5 per95];
+save aaaamy_data.out output -ASCII -tabs
+dlmwrite('super.dat', [histX' histCounts'], '\t');
