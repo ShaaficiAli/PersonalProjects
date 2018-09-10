@@ -2,24 +2,30 @@ import numpy as np
 import statistics as stat
 import cv2
 import math
-#import matplotlib as plt
 import scipy.ndimage
 from matplotlib import pyplot as plt
-
+import time
 def mean_filter(ls):
     """
     a function to calculate the mean of a 1d array.
     This is used by the generic_cilter function
     """
     return sum(ls)/len(ls)
-
+def ROI(coordinates, image):
+    mask = np.zeros(image.shape, dtype=np.uint8)
+    channel_count = image.shape[2]
+    ignore_mask_color = (255,)*channel_count
+    cv2.fillConvexPoly(mask, coordinates, ignore_mask_color)
+    masked_image = cv2.bitwise_and(image, mask)
+    
 def analyze(acc, dn):
     """
     :param acc: The filename and path for the acceptor tiff file
     :param dn: The filename and path for the donor tiff file
     """
-    acceptor = cv2.imread(acc, cv2.IMREAD_ANYDEPTH) #reading the acceptor img
-    donor = cv2.imread(dn,  cv2.IMREAD_ANYDEPTH) #reading the donor img
+    start = time.time()
+    acceptor = cv2.imread(acc, -1) #reading the acceptor img
+    donor = cv2.imread(dn,  -1) #reading the donor img
     #constanst
     dark_current1 = 2000
     dark_current2 = 2000
@@ -71,7 +77,10 @@ def analyze(acc, dn):
     plt.imshow(fret, interpolation='nearest')
     plt.colorbar()
     plt.show()
-    return acceptor
+    
+    end = time.time()
+    print(end-start)
+    return fret
     
                 
             
