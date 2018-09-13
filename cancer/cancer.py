@@ -3,6 +3,7 @@ import statistics as stat
 import cv2
 import math
 import scipy.ndimage
+import pickle
 from matplotlib import pyplot as plt
 import time
 def mean_filter(ls):
@@ -12,18 +13,25 @@ def mean_filter(ls):
     """
     return sum(ls)/len(ls)
 def ROI(coordinates, image):
-    mask = np.zeros(image.shape, dtype=np.uint8)
-    channel_count = image.shape[2]
+    mask = np.zeros(image.shape, dtype=np.float32)
+    channel_count = 1
+    
+    points = np.array([(1200,200),(1200,0),(1400,200),(1400,0)])
+    
     ignore_mask_color = (255,)*channel_count
     cv2.fillConvexPoly(mask, coordinates, ignore_mask_color)
     masked_image = cv2.bitwise_and(image, mask)
     
-def analyze(acc, dn):
+    plt.figure(2)
+    plt.imshow(masked_image,interpolation='nearest')
+    plt.colorbar()
+    plt.show()
+    
+def process(acc, dn):
     """
     :param acc: The filename and path for the acceptor tiff file
     :param dn: The filename and path for the donor tiff file
     """
-    start = time.time()
     acceptor = cv2.imread(acc, -1) #reading the acceptor img
     donor = cv2.imread(dn,  -1) #reading the donor img
     #constanst
@@ -47,15 +55,15 @@ def analyze(acc, dn):
     #average mask
     acceptor = scipy.ndimage.generic_filter(acceptor, mean_filter, 4)
     donor = scipy.ndimage.generic_filter(donor, mean_filter, 4)
-    
+    print(type(acceptor))
+    acceptor = acceptor.astype(np.float64)
+    donor = donor.astype(np.float64)
     for i in range(len(acceptor[0])):
         for j in range(len(acceptor)):
             #subtracting dark current
             acceptor[i][j]-= dark_current1 + 3*dark_current_SD1
             donor[i][j] -= dark_current2 + 3*dark_current_SD2
-            #compensate for the 50_50BS intensity attenuation
-            acceptor[i][j] *=1.0
-            donor[i][j] *=1.0
+
             #eliminate low intensity or saturated pixels
             if not(accThresh < acceptor[i][j] < 65000):
                 acceptor[i][j] = 0
@@ -73,14 +81,20 @@ def analyze(acc, dn):
             #if the pixel is not inbetween the upper and lower limit then set it to 0
             if not(lowLimit <= fret[i][j] <= upLimit):
                 fret[i][j] = 0
-    
-    plt.imshow(fret, interpolation='nearest')
+    with open("fret.file","wb") as f:
+        pickle.dump(fret,f, pickle.HIGHEST_PROTOCOL)
+    return fret
+def analyze(image):
+    with open(image, "rb") as f:
+        processed_image = pickle.load(f)
+    plt.imshow(processed_image, interpolation='nearest')
     plt.colorbar()
     plt.show()
-    
-    end = time.time()
-    print(end-start)
-    return fret
+    plt.figure(2)
+    h = plt.hist(processed_image.flatten(),90)
+    plt.show()
+    print(h)
+    return processed_image
     
                 
             
