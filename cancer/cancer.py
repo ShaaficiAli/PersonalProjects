@@ -12,18 +12,18 @@ def mean_filter(ls):
     This is used by the generic_cilter function
     """
     return sum(ls)/len(ls)
-def ROI(coordinates, image):
-    mask = np.zeros(image.shape, dtype=np.float32)
+def ROI(image):
+    mask = np.zeros(image.shape, dtype=np.float64)
     channel_count = 1
     
     points = np.array([(1200,200),(1200,0),(1400,200),(1400,0)])
-    
-    ignore_mask_color = (255,)*channel_count
-    cv2.fillConvexPoly(mask, coordinates, ignore_mask_color)
+    channel_count = 1
+    print(image[1200,200])
+    cv2.fillConvexPoly(mask, points, ignore_mask_color)
     masked_image = cv2.bitwise_and(image, mask)
     
     plt.figure(2)
-    plt.imshow(masked_image,interpolation='nearest')
+    plt.imshow(mask,interpolation='nearest')
     plt.colorbar()
     plt.show()
     
