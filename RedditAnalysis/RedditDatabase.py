@@ -17,7 +17,6 @@ def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissi
                       "'").fetchall()==[]:
         print("CREATING TABLE "+SubredditName)
         cursor.execute(" CREATE table '"+SubredditName+"' (id INTEGER PRIMARY KEY AUTOINCREMENT,subreddit TEXT,username TEXT,title TEXT,date INTEGER,karma INTEGER)")
-    posts=[]
     
     for submission in reddit.subreddit(SubredditName).hot(limit=maxSubmissions):
         redditor = submission.author
@@ -28,8 +27,11 @@ def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissi
             sub = post.subreddit.display_name
             name = redditor.name
             item = (sub,name,title,date,karma,)
-            posts.append(item)
-    cursor.executemany("INSERT INTO '"+SubredditName+"' (subreddit,username,title,date,karma) VALUES(?,?,?,?,?)",posts)
+            sqlStatement = "SELECT subreddit, username, title, date FROM '"+SubredditName+"' WHERE subreddit = ? and username = ? and title = ? and date = ?"
+            print(sqlStatement)
+            if cursor.execute(sqlStatement,(sub,name,title,date)).fetchall()==[]:
+                print("Sucess")
+                cursor.execute("INSERT INTO '"+SubredditName+"' (subreddit,username,title,date,karma) VALUES(?,?,?,?,?)",item)
     connection.commit()
     connection.close()
     
@@ -51,7 +53,7 @@ def displayHistogram(*args):
     subredditsInvolved = ""
     moreThanOne = len(args)>1
     for data in args:
-        plt.hist(data[0],data[2],cumulative = True,density = True,alpha = 0.5,label = data[1])
+        plt.hist(data[0],data[2],cumulative = True,density = True,alpha = 0.5,label = data[1],histtype='stepfilled')
         if data in args[1:-1] and moreThanOne:
             subredditsInvolved+=","+data[1]
         if data == args[-1] and moreThanOne:
@@ -64,7 +66,9 @@ def displayHistogram(*args):
     plt.xlabel("Days before newest post")
     plt.ylabel("Cumulative distribution function of posts prior to most recent")
     plt.show()
-    
+
+getSubredditUserPostData("The_Donald","RedditUsers.db")
+getSubredditUserPostData("all","RedditUsers.db")
 data1 = SubredditRedditorsPostDistributions("The_Donald","RedditUsers.db")
 data2 = SubredditRedditorsPostDistributions("all","RedditUsers.db")
 displayHistogram(data1,data2)
