@@ -1,8 +1,9 @@
 from matplotlib import pyplot as plt
 import sqlite3
-#import praw
+import praw
 from BotInfo import Bot
 import datetime
+import numpy as np
 def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissions=500):
     reddit = praw.Reddit(client_id=Bot.client_id,
                          client_secret=Bot.secret,
@@ -36,17 +37,32 @@ def SubredditRedditorsPostDistributions(SubredditName,dbFileName):
     connection = sqlite3.connect(dbFileName)
     cursor = connection.cursor()
     Maximum = cursor.execute("SELECT MAX(date) FROM '"+SubredditName+"'").fetchone()[0]
+    Minimum = cursor.execute("SELECT MIN(date) FROM '"+SubredditName+"'").fetchone()[0]
+    duration = (datetime.date.fromtimestamp(Maximum)-datetime.date.fromtimestamp(Minimum)).days
+    
     data = []
     for datapoint in cursor.execute("SELECT date FROM '"+SubredditName+"' ORDER BY date DESC"):
         utc_time = datapoint[0]
         item = (datetime.date.fromtimestamp(utc_time)-datetime.date.fromtimestamp(Maximum)).days
         data.append(abs(item))
-    print(len(data))
-    return data
+    return [data,SubredditName,duration]
 
 def displayHistogram(*args):
+    subredditsInvolved = ""
+    moreThanOne = len(args)>1
     for data in args:
-        plt.hist(data,1000,cumulative = True,density = True,alpha = 0.5)
+        plt.hist(data[0],data[2],cumulative = True,density = True,alpha = 0.5,label = data[1])
+        if data in args[1:-1] and moreThanOne:
+            subredditsInvolved+=","+data[1]
+        if data == args[-1] and moreThanOne:
+            subredditsInvolved +=" and "+data[1]
+        else:
+            subredditsInvolved+=data[1]
+            
+    plt.legend(loc = 'upper right')
+    plt.title("Comparison of postings frequencies from redditors from subreddits "+subredditsInvolved)
+    plt.xlabel("Days before newest post")
+    plt.ylabel("Cumulative distribution function of posts prior to most recent")
     plt.show()
     
 data1 = SubredditRedditorsPostDistributions("The_Donald","RedditUsers.db")
