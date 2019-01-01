@@ -3,21 +3,28 @@ import sqlite3
 import praw
 from BotInfo import Bot
 import datetime
-import numpy as np
+
+#Custom errors for maxRedditors and maxSUbmissions param in getSubredditUsersPostData
+class maxRedditorsException(Exception):
+    pass
+class maxSubmissionsException(Exception):
+    pass
+
 def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissions=500):
     """
         This function retrieves post history of redditors who post in SubredditName and stores the post title,which subreddit it was posted in, the utc date it was posted,
         the amount of likes it has and the name of the redditor. If a table for SubredditName has not been intialized and table will be created that has its name.
         Only Unique posts are retrieved.If the db file from dbFileName is not initialized then it will be created for you called dbFileName.
     """
-    if maxSubmissions>1000 or maxRedditor<0:
-        raise maxSubmissionsException("maxSubmissions must be between 0 and 1000 inclusive")
-    if not(type(maxSubmissions)==int):
-        raise maxSubmissonsException("maxSubmissions must be and integer not "+str(type(maxSubmissions)))
+    #Error checking to ensure that maxRedditor and maxSubmissions are integers between 0 and 1000 niclusive
+    if not(isinstance(maxSubmissions,int) and not isinstance(maxSubmissions,float)):
+        raise maxSubmissionsException("maxSubmissions must be and integer not "+str(type(maxSubmissions)))
+    if not(isinstance(maxRedditor,int) and not isinstance(maxSubmissions,float)):
+        raise maxRedditorsException("maxRedditor must be and integer not "+str(type(maxRedditor)))   
     if maxRedditor>1000 or maxRedditor<0:
-        raise maxRedditorException("maxRedditor must be between 0 and 1000 inclusive")
-    if not(type(maxRedditor)==int):
-        raise maxRedditorException("maxRedditor must be and integer not "+str(type(maxSubmissions)))   
+        raise maxRedditorsException("maxRedditor must be between 0 and 1000 inclusive")
+    if maxSubmissions>1000 or maxSubmissions<0:
+        raise maxSubmissionsException("maxSubmissions must be between 0 and 1000 inclusive")
     
     #The Bot used is stored in another class file. The File is BotInfo use it if you want.
     reddit = praw.Reddit(client_id=Bot.client_id,
@@ -97,10 +104,7 @@ getSubredditUserPostData("all","RedditUsers.db")
 data1 = SubredditRedditorsPostDistributions("The_Donald","RedditUsers.db")
 data2 = SubredditRedditorsPostDistributions("all","RedditUsers.db")
 displayHistogram(data1,data2)
-    
-class maxRedditorsException(Exception):
-    pass
-class maxSubmissionsException(Exception):
-    pass
+  
+
 
        
