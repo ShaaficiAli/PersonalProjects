@@ -10,6 +10,15 @@ def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissi
         the amount of likes it has and the name of the redditor. If a table for SubredditName has not been intialized and table will be created that has its name.
         Only Unique posts are retrieved.If the db file from dbFileName is not initialized then it will be created for you called dbFileName.
     """
+    if maxSubmissions>1000 or maxRedditor<0:
+        raise maxSubmissionsException("maxSubmissions must be between 0 and 1000 inclusive")
+    if not(type(maxSubmissions)==int):
+        raise maxSubmissonsException("maxSubmissions must be and integer not "+str(type(maxSubmissions)))
+    if maxRedditor>1000 or maxRedditor<0:
+        raise maxRedditorException("maxRedditor must be between 0 and 1000 inclusive")
+    if not(type(maxRedditor)==int):
+        raise maxRedditorException("maxRedditor must be and integer not "+str(type(maxSubmissions)))   
+    
     #The Bot used is stored in another class file. The File is BotInfo use it if you want.
     reddit = praw.Reddit(client_id=Bot.client_id,
                          client_secret=Bot.secret,
@@ -89,6 +98,9 @@ data1 = SubredditRedditorsPostDistributions("The_Donald","RedditUsers.db")
 data2 = SubredditRedditorsPostDistributions("all","RedditUsers.db")
 displayHistogram(data1,data2)
     
-
+class maxRedditorsException(Exception):
+    pass
+class maxSubmissionsException(Exception):
+    pass
 
        
