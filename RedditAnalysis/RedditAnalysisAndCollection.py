@@ -506,8 +506,24 @@ def growthOfNewSubreddits(dbFileName,new,numComments,numSubmissions):
     connection.close()
     initialDataPopulation(limit,start,end,numComments,numSubmissions,dbFileName)
 
-def analyzeSubredditPostData(subname):
+def analyzeSubredditData(dbFileName):
     '''
     
     '''
+    SqlGroupedBySubreddit = "SELECT Subreddits.name,total(Posts.score) as 'Total Score', avg(Posts.score) as average FROM Subreddits JOIN Posts USING(SubredditID) GROUP BY Posts.SubredditID ORDER BY 'Total Score' desc;"
+    SqlGroupedByPosts = 'SELECT Subreddits.name,"Post Title","Post Score","Total Comment Score","upvote ratio" FROM Subreddits JOIN (SELECT Posts.title as "Post Title",Posts.score as "Post Score",Posts.upvoteratio as "upvote ratio",total(Comments.score) as "Total Comment Score",Posts.SubredditID FROM Posts JOIN Comments USING(PostID) GROUP BY Posts.PostID) using(SubredditID);'
+    connection = sqlite3.connect(dbFileName)
+    cursor = connection.cursor()
+    cursor.execute(SqlGroupedBySubreddit)
+    resultsGroup = cursor.fetchall()
+    cursor.execute(SqlGroupedByPosts)
+    resultsPosts = cursor.fetchall()
+    SubredditData = []
+    for result in resultsGroup:
+        print(result)
+    print("/////////////////////////////////////////////////")
+    for result in resultsPosts:
+        print(result)
+    connection.close()
     
+    return results

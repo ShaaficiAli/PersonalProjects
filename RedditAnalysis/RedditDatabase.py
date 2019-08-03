@@ -36,8 +36,7 @@ def getSubredditUserPostData(SubredditName,dbFileName,maxRedditor=25,maxSubmissi
     connection = sqlite3.connect(dbFileName)
     cursor = connection.cursor()
     #If the table is not in the dbFileName then create it
-    if cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='"+SubredditName+
-                      "'").fetchall()==[]:
+    if cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='"+SubredditName+"'").fetchall()==[]:
         print("CREATING TABLE "+SubredditName)
         cursor.execute(" CREATE table '"+SubredditName+"' (id INTEGER PRIMARY KEY AUTOINCREMENT,subreddit TEXT,username TEXT,title TEXT,date INTEGER,karma INTEGER)")
     
