@@ -134,8 +134,6 @@ class Leaf:
         for item in ls:
             print(item)
     
-        
-            
 class Decision_Node:
     def __init__(self,question,true_branch,false_branch):
         self.question = question
@@ -217,42 +215,55 @@ def trimDatapoint(datapoint,featuresChoosen,originalFeatures,classColOriginal):
     newdata.append(datapoint[classColOriginal])
     return newdata
 class RandomForest:
-    def __init__(self,listOfTrees):
+    def __init__(self,listOfTrees,header,listOfFeaturesChoosen,originalFeatureColumn):
         self.RF = listOfTrees
+        self.h = header
+        self.FC = listOfFeaturesChoosen
+        self.featureColumn = originalFeatureColumn
         
-    def classify(self,data):
+    def classify(self,datapoint):
+        prediction = {}
+        results = []
+        for i in  range(len(self.RF)):
+            dp = trimDatapoint(datapoint,self.FC[i],self.h,self.featureColumn)
+            results.append(classify(self.RF[i],dp))
+        for result in results:
+            for key in result.keys():
+                if key in prediction.keys():
+                    prediction[key] += result[key]
+                else:
+                    prediction[key] = result[key]
+        print(prediction)
         
-        for tree in self.RF:
-            print(classify(tree,data))
+            
         
 def randomTreeToQueue(q,data,features,classCol):
    q.put(randomTree(data,features,classCol))
-    
+
 
 if __name__=='__main__':
     q = mp.Queue()
     processes = []
+    rf = []
+    fc = []
     starttime = time.time()
-    for i in range(8):
-        
-        p = mp.Process(target = time.sleep, args = (10,))
+    for i in range(8):  
+        p = mp.Process(target = randomTreeToQueue, args = (q,data[:3000],header,20,))
         processes.append(p)
         p.start()
-    for p in processes:
+        
+    while len(rf)<8:
+        rft = q.get()
+        rNode = rft[0]
+        featuresChoosen = rft[1]
+        print(featuresChoosen)
+        rfixedData = rft[2]
+        rf.append(rNode)
+        fc.append(featuresChoosen)
+        
+    for p in processes:     
         p.join()
-    print("it took:"+str(time.time()-starttime))
-   
+           
+    result = RandomForest(rf,header,fc,20)
+    result.classify(data[-1])
     
-    
-##    rf = []
-##    print("All proccesses have started")
-##    while(not(q.empty())):
-##        rft = q.get()
-##        rNode = rft[0]
-##        featuresChoosen = rft[1]
-##        print(featuresChoosen)
-##        rfixedData = rft[2]
-##        rf.append(rNode)
-##    print("creating random forest")    
-##    result = RandomForest(rf)
-##    result.classify(data[-1])
