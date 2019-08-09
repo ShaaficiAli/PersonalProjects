@@ -134,6 +134,8 @@ int main(int arg,char **argv)
 		cout<<a<<endl;
 	}
 	transferVectorFilesToOne(filenames,filename);
+	delete filename;
+	delete filetype;
 	
 
 }
