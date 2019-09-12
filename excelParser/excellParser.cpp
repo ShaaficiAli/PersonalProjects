@@ -137,5 +137,4 @@ int main(int arg,char **argv)
 	delete filename;
 	delete filetype;
 	
-
 }
