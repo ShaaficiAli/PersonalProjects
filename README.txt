@@ -9,6 +9,7 @@ Organization:
 
 Chronological Order					Program written in		Short description
 
+Bengali Classifier                Python        CNN for bengali hand written digits
 decision_boundary_no_kernel				Python				Machine Learning no libraries
 Predictive Analysis of google stock			Python 				Machine Learning no libraries
 Keylogger						C++				windows virus
