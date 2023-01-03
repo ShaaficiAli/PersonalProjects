@@ -1,0 +1,33 @@
+CREATE Table Quarter10(id SERIAL,
+			CompanyName varchar(1000),
+			FormUrl varchar(1000),
+			FormType varchar(25),
+			ReportUrl varchar(1000),
+			FormContent bytea,
+			primary key(CompanyName,FormUrl,ReportUrl),
+			foreign key (FormUrl,FormType) references formsubmissioninfo(FormUrl,FormType) ON DELETE CASCADE ON UPDATE CASCADE)
+
+ALTER Table formsubmissioninfo ADD CONSTRAINT formuniqueness Unique(formurl,formtype)
+
+create Table CrawlerInfo(
+	id SERIAL ,
+	year integer ,
+	QTR integer,
+	crawlerURL varchar(1000) unique,
+	crawlerID varchar(1000) unique,
+	primary key(id,year,QTR,crawlerURL),
+	unique(crawlerURL,crawlerID) 
+	
+)
+
+create Table FormSubmissionInfo(
+	id SERIAL,
+	CompanyName varchar(1000),
+	crawlerUrl varchar(1000),
+	crawlerID varchar(1000),
+	CIK integer,
+	DateSubmitted varchar(12),
+	FormUrl varchar(1000),
+	FormType varchar(25),
+	primary key(id,CompanyName,CIK,FormType,FormUrl),
+	foreign key(crawlerUrl,crawlerID) references crawlerinfo(crawlerURL,crawlerID) on DELETE CASCADE);
