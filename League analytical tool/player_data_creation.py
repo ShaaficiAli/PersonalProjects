@@ -12,7 +12,7 @@ try:
     cur.execute(playertable)
 except(sqlite3.OperationalError):
     pass
-apikey = "api_key=RGAPI-eb6be4b4-8fa9-496c-861d-ddc05e0c812a"
+
 regions = ['na1','kr','jp1','eun1','euw1']
 ranks = ["challenger","grandmaster"]
 

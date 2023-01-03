@@ -5,7 +5,7 @@ import sqlite3
 import time
 #the current patch update was dec 14 so matches collected will be from dec 16 upwards
 epochtimestamp = 1671166800
-apikey = "api_key=RGAPI-eb6be4b4-8fa9-496c-861d-ddc05e0c812a"
+
 con = sqlite3.connect("Data/league_match.db")
 cur = con.cursor()
 
