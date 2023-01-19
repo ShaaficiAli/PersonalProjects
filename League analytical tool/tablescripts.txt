@@ -1,0 +1,60 @@
+CREATE TABLE placements(
+placement_id integer primary key,
+first_augment varchar(100),
+second_augment varchar(100),
+third_augment varchar(100),
+matchid varchar(200),
+placement int,
+companion varchar(100),
+gold_left int,
+last_round int,
+level int,
+players_eliminated int,
+puuid varchar(100),
+time_eliminated float,
+total_damage_to_players int,
+foreign key(matchid) references matches)
+
+
+
+CREATE TABLE units(
+unitname varchar(100),
+placement_id integer,
+firstitem varchar(100),
+seconditem varchar(100),
+thirditem varchar(100),
+tier int,
+rarity int,
+foreign key(placement_id) references placements);
+
+
+CREATE TABLE matches(
+matchid varchar(100),
+game_length float,
+game_datetime float,
+game_version varchar(200),
+tft_game_type varchar(200),
+tft_set_core_name varchar(200))
+
+CREATE TABLE players (puuid varchar(100),
+summonerID varchar(100),
+rank varchar(25),
+region varchar(10),
+wins int,
+losses int,
+leaguePoints int,
+summonerName varchar(255)
+,veteran boolean,
+hotStreak boolean
+,freshBlood boolean,
+inactive boolean,
+primary key(puuid,summonerID));"
+
+
+traitTables = CREATE TABLE traits(
+traitname varchar(100),
+num_units int,
+tier_current int,
+tier_total int,
+placement_id integer,
+foreign key(placement_id) references placements);
