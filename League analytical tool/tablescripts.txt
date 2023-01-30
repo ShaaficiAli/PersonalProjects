@@ -54,7 +54,11 @@ primary key(puuid,summonerID));"
 traitTables = CREATE TABLE traits(
 traitname varchar(100),
 num_units int,
-tier_current int,
-tier_total int,
+tier_current_min_units int,
+tier varchar(60),
 placement_id integer,
 foreign key(placement_id) references placements);
+
+
+
+

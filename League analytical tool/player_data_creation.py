@@ -3,8 +3,10 @@ import re
 import json
 import sqlite3
 import time
+import apikey
 #player data first due to how the league api is set up
 print("starting program at "+str(time.ctime()))
+apikey = get_api_key()
 con = sqlite3.connect("Data/league_match.db")
 cur = con.cursor()
 playertable = "CREATE TABLE players (puuid varchar(100),summonerID varchar(100),rank varchar(25),region varchar(10),wins int,losses int,leaguePoints int,summonerName varchar(255),veteran boolean,hotStreak boolean,freshBlood boolean,inactive boolean,primary key(puuid,summonerID));"
